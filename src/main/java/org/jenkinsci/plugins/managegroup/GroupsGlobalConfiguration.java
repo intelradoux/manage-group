@@ -31,8 +31,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jenkins.model.GlobalConfiguration;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -67,16 +65,10 @@ public class GroupsGlobalConfiguration extends GlobalConfiguration {
 		Set<String> currentGroups = new HashSet<String>();
 
 		if (json != null && !json.isNullObject()) {
-			JSON groupData = (JSON) json.get("groups");
-			if (groupData != null && !groupData.isEmpty()) {
-				if (groupData.isArray()) {
-					JSONArray groupArray = (JSONArray) groupData;
-					for (int i = 0; i < groupArray.size(); i++) {
-						currentGroups.add(extractGroup((JSON) groupArray.get(i)));
-					}
-				} else {
-					currentGroups.add(extractGroup(groupData));
-				}
+			// JSON groupData = (JSON) json.get("groups");
+			String groupsString = json.optString("groups", "");
+			for (String grp : groupsString.split("[ \\n\\r]")) {
+				currentGroups.add(grp);
 			}
 		}
 
@@ -85,15 +77,15 @@ public class GroupsGlobalConfiguration extends GlobalConfiguration {
 		return true;
 	}
 
-	private String extractGroup(JSON rawGroup) {
-		if ((rawGroup == null) || (rawGroup.isEmpty())) {
-			return "";
-		}
-		JSONObject rawObj = (JSONObject) rawGroup;
-		return rawObj.optString("group", "");
-	}
-
 	public Set<String> getGroups() {
 		return groups;
+	}
+
+	public String getGroupsString() {
+		StringBuilder sb = new StringBuilder();
+		for (String s : groups) {
+			sb.append(s).append(" ");
+		}
+		return sb.toString();
 	}
 }
