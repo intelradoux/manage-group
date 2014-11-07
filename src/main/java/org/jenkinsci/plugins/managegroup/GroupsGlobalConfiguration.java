@@ -25,6 +25,7 @@
 package org.jenkinsci.plugins.managegroup;
 
 import hudson.Extension;
+import hudson.ExtensionList;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -86,6 +87,26 @@ public class GroupsGlobalConfiguration extends GlobalConfiguration {
 		for (String s : groups) {
 			sb.append(s).append(" ");
 		}
+		return sb.toString();
+	}
+
+	public String getExternalGroupsString() {
+		StringBuilder sb = new StringBuilder();
+		boolean notFirst = false;
+		for (GroupProvider p : ExtensionList.lookup(GroupProvider.class)) {
+			for (String s : p.groupList()) {
+				if (notFirst) {
+					sb.append(" | ").append(s);
+				} else {
+					sb.append(s);
+					notFirst = true;
+				}
+			}
+		}
+		if (!notFirst) {
+			return "No group found in external provider";
+		}
+
 		return sb.toString();
 	}
 }

@@ -24,14 +24,19 @@
 package org.jenkinsci.plugins.managegroup;
 
 import hudson.Extension;
+import hudson.ExtensionList;
 import hudson.model.JobPropertyDescriptor;
 import hudson.model.Job;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import javax.inject.Inject;
 
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -100,7 +105,13 @@ public class ProjectGroupAssociationDescriptor extends JobPropertyDescriptor {
 	public ListBoxModel doFillGroupNameItems() {
 		ListBoxModel items = new ListBoxModel();
 
-		for (String group : globalGroup.getGroups()) {
+		Set<String> groups = new TreeSet<String>();
+		for (GroupProvider p : ExtensionList.lookup(GroupProvider.class)) {
+			groups.addAll(p.groupFor(Jenkins.getAuthentication().getName()));
+		}
+		groups.addAll(globalGroup.getGroups());
+
+		for (String group : groups) {
 			Option o = new Option(group, group, (group.equals(groupName)));
 			items.add(o);
 		}

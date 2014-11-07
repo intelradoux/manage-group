@@ -8,7 +8,6 @@
 			against? Users must have at least this Jenkins version to use this plugin. -->
 	</parent>
 
-	<groupId>org.jenkins-ci.plugins</groupId>
 	<artifactId>manage-group</artifactId>
 	<version>1.0</version>
 	<packaging>hpi</packaging>

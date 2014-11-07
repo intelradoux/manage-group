@@ -28,5 +28,8 @@
         <f:entry title="${%Manage.Groups.Title}">
 			<f:expandableTextbox name="groups" value="${descriptor.groupsString}" />
 		</f:entry> 
+		<f:entry title="${%Manage.Groups.external}">
+			${descriptor.externalGroupsString}
+		</f:entry>
   </f:section>
 </j:jelly>
