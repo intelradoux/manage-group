@@ -26,11 +26,14 @@ package org.jenkinsci.plugins.managegroup;
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.model.JobPropertyDescriptor;
+import hudson.model.TopLevelItem;
 import hudson.model.Job;
+import hudson.model.ListView;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -39,6 +42,7 @@ import javax.inject.Inject;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
+import org.kohsuke.stapler.Ancestor;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -90,7 +94,28 @@ public class ProjectGroupAssociationDescriptor extends JobPropertyDescriptor {
 		}
 
 		ProjectGroupAssociation property = new ProjectGroupAssociation(grp);
+
+		// Remove the project direct association if view is a group view
+		fixProjectAssociation(req);
+
 		return property;
+	}
+
+	private void fixProjectAssociation(StaplerRequest req) {
+		Ancestor viewAncestor = req.findAncestor(ListView.class);
+		if (viewAncestor == null) {
+			return;
+		}
+		ListView view = (ListView) viewAncestor.getObject();
+		Ancestor projectAncestor = req.findAncestor(TopLevelItem.class);
+		if (projectAncestor == null) {
+			return;
+		}
+		try {
+			view.remove((TopLevelItem) projectAncestor.getObject());
+		} catch (IOException e) {
+			// NO OP
+		}
 	}
 
 	public FormValidation doCheckGroupName(
