@@ -43,6 +43,7 @@ public class GroupsGlobalConfiguration extends GlobalConfiguration {
 
 	public GroupsGlobalConfiguration() {
 		this(Collections.<String> emptySet());
+		load();
 	}
 
 	/**
