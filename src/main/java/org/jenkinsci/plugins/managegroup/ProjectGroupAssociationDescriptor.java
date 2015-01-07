@@ -29,6 +29,7 @@ import hudson.model.JobPropertyDescriptor;
 import hudson.model.TopLevelItem;
 import hudson.model.Job;
 import hudson.model.ListView;
+import hudson.model.View;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
@@ -102,6 +103,7 @@ public class ProjectGroupAssociationDescriptor extends JobPropertyDescriptor {
 	}
 
 	private void fixProjectAssociation(StaplerRequest req) {
+		fixDefaultView(req);
 		Ancestor viewAncestor = req.findAncestor(ListView.class);
 		if (viewAncestor == null) {
 			return;
@@ -115,6 +117,22 @@ public class ProjectGroupAssociationDescriptor extends JobPropertyDescriptor {
 			view.remove((TopLevelItem) projectAncestor.getObject());
 		} catch (IOException e) {
 			// NO OP
+		}
+	}
+
+	private void fixDefaultView(StaplerRequest req) {
+		Ancestor projectAncestor = req.findAncestor(TopLevelItem.class);
+		if (projectAncestor == null) {
+			return;
+		}
+		for (View v : Jenkins.getInstance().getViews()) {
+			if (v.isDefault() && v instanceof ListView) {
+				try {
+					((ListView) v).remove((TopLevelItem) projectAncestor.getObject());
+				} catch (IOException e) {
+					// NO OP
+				}
+			}
 		}
 	}
 
